@@ -17,19 +17,17 @@ export const TodoItem: React.FC<Props> = ({
   onDelete,
   onUpdate,
 }) => {
-  // #region state, ref
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
 
   const editField = useRef<HTMLInputElement>(null);
-  // #endregion
 
   useEffect(() => {
     if (isEditing && editField.current) {
       editField.current.focus();
     }
   }, [isEditing]);
-  // #region handle
+
   const handleRename = () => {
     const normalizedNewTitle = newTitle.trim();
 
@@ -71,7 +69,6 @@ export const TodoItem: React.FC<Props> = ({
     event.preventDefault();
     handleRename();
   };
-  // #endregion
 
   return (
     <div

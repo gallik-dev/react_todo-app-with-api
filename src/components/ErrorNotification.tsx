@@ -1,9 +1,10 @@
 import classNames from 'classnames';
 import React from 'react';
+import { ErrorMessage } from '../types/ErrorMessage';
 
 type Props = {
-  errorMessage: string;
-  setErrorMessage: (error: string) => void;
+  errorMessage: ErrorMessage;
+  setErrorMessage: (message: ErrorMessage) => void;
 };
 
 export const ErrorNotification: React.FC<Props> = ({
@@ -16,7 +17,7 @@ export const ErrorNotification: React.FC<Props> = ({
       className={classNames(
         'notification is-danger is-light has-text-weight-normal',
         {
-          hidden: errorMessage === '',
+          hidden: errorMessage === ErrorMessage.None,
         },
       )}
     >
@@ -24,9 +25,8 @@ export const ErrorNotification: React.FC<Props> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setErrorMessage('')}
+        onClick={() => setErrorMessage(ErrorMessage.None)}
       />
-      {/* show only one message at a time */}
       {errorMessage}
     </div>
   );

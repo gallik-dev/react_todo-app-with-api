@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-// #region import
 import React, {
   useCallback,
   useEffect,
@@ -22,11 +21,12 @@ import { ErrorNotification } from './components/ErrorNotification';
 import { Footer } from './components/Footer';
 import { Todo } from './types/Todo';
 import { FilterStatus } from './types/FilterStatus';
-// #endregion
+import { ErrorMessage } from './types/ErrorMessage';
 export const App: React.FC = () => {
-  // #region state, ref
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage>(
+    ErrorMessage.None,
+  );
   const [status, setStatus] = useState<FilterStatus>(FilterStatus.All);
 
   const [title, setTitle] = useState('');
@@ -34,8 +34,6 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const newTodoField = useRef<HTMLInputElement>(null);
-  // #endregion
-  // #region computed values
   const filters = Object.values(FilterStatus);
   const activeTodos = todos.filter(todo => !todo.completed).length;
   const completedTodos = todos.some(todo => todo.completed);
@@ -58,14 +56,12 @@ export const App: React.FC = () => {
   const visibleTodos = useMemo(() => {
     return filteredTodos(todos);
   }, [filteredTodos, todos]);
-  // #endregion
-  // #region effects
 
   useEffect(() => {
     getTodos()
       .then(setTodos)
       .catch(() => {
-        setErrorMessage('Unable to load todos');
+        setErrorMessage(ErrorMessage.LoadError);
       });
   }, []);
 
@@ -75,7 +71,7 @@ export const App: React.FC = () => {
     }
 
     const timerId = setTimeout(() => {
-      setErrorMessage('');
+      setErrorMessage(ErrorMessage.None);
     }, 3000);
 
     return () => clearTimeout(timerId);
@@ -86,14 +82,12 @@ export const App: React.FC = () => {
       newTodoField.current.focus();
     }
   }, [tempTodo, newTodoField]);
-  // #endregion
-  // #region handle
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const normalizedTitle = title.trim();
 
     if (!normalizedTitle) {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(ErrorMessage.EmptyTitleError);
 
       return;
     }
@@ -111,7 +105,7 @@ export const App: React.FC = () => {
         setTitle('');
       })
       .catch(() => {
-        setErrorMessage('Unable to add a todo');
+        setErrorMessage(ErrorMessage.AddError);
       })
       .finally(() => {
         setTempTodo(null);
@@ -128,7 +122,7 @@ export const App: React.FC = () => {
         });
       })
       .catch(error => {
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(ErrorMessage.DeleteError);
         throw error;
       })
       .finally(() => {
@@ -157,7 +151,7 @@ export const App: React.FC = () => {
         );
       })
       .catch(error => {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(ErrorMessage.UpdateError);
         throw error;
       })
       .finally(() => {
@@ -174,7 +168,6 @@ export const App: React.FC = () => {
       handleUpdate(todo.id, { completed: newStatus });
     });
   };
-  // #endregion
 
   if (!USER_ID) {
     return <UserWarning />;
